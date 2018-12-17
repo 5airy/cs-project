@@ -1,0 +1,84 @@
+clear;
+clc;
+
+first = VideoReader ('topsecret.mp4');
+
+fhight = first.Height;
+fwidth = first.Width;
+disp(fhight );
+disp(fwidth);
+
+% i dont know its structure but its an array consist of video farmes sorted
+s = struct('sayed',zeros(fhight,fwidth,3,'uint8'), 'colormap',[]);
+%c = zeros(fhight,fwidth);
+%Read one frame at a time using readFrame until the end of the file is reached.
+%Append data from each video frame to the structure array.
+
+n = 0 ;
+while hasFrame(first)
+    n = n+1;
+    %note that i took the gray scale dircet while cutting the frames
+    s(n).sayed = rgb2gray(readFrame(first));
+    
+end
+
+%Get information about the movie structure array, s.
+whos s;
+
+%after this command (whos) it will disp inf about the video and one of the
+%info is how many frames stored is this arrat
+%s is a 1-by-anynum structure array, containing data from the 141 frames in the video file
+
+%Display the nth frame stored in s.
+
+tic;
+%image(s(15).sayed)
+% turn every entry in the photo matrix to hexa
+b = zeros(352,640,5);
+v = zeros(225280,2,5);
+rdec = zeros(225280,1,5);
+cdec = zeros(225280,1,5);
+sbox = sboxo;
+[m,n,h]= size(b);
+[vm,vn,g] = size (v);
+vafter = cell(225280,1,5);
+encrypted = zeros(m,n,5);
+for i = 1 : 2263
+b(:,:,i) = s(i).sayed;
+v(:,:,i) = dec2hex (b(:,:,i));
+for j = 1 : vm 
+rdec(j,1,i) = hex2dec(v(j,1,i));
+cdec (j,1,i)= hex2dec(v(j,2,i));
+ vafter(j,1,i) = sbox (rdec(j,1,i)+1,cdec(j,1,i)+1);
+end
+encrypted (:,:,i)= reshape(hex2dec(vafter(:,1,i)),m,n); 
+end
+
+ksa = shiftrows(encrypted);
+%in this step we call invsbox and but it in a variable 
+toc;
+inversesbox =invsboxo;
+%in this step we convert invsbox into double so we can reach each element 
+inversesbox = reshape(hex2dec(inversesbox),16,16);
+ v_temp = cell2mat(vafter(:,1));
+  rowtemp = hex2dec(v_temp(:,1));
+   coltemp = hex2dec(v_temp(:,2));
+ for i = 1 : vm
+ 
+   vaff(i,1) = inversesbox(rowtemp(i,1)+1,coltemp(i,1)+1);
+ end
+
+%  for i = 1 : vm
+%      %in this step i should access each element in the encrypted array
+%    v_temp = cell2mat(vafter(1,i));
+%    % get the first element in every cell as an indix row for invsbox and
+%    % column also
+%    rowtemp = hex2dec(v_temp(1,1));
+%    coltemp = hex2dec(v_temp(1,2));
+%    vaff(i) = inversesbox(rowtemp+1,coltemp+1);
+%  end
+ vaff = reshape(vaff,m,n);
+ 
+ 
+ 
+ 
